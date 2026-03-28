@@ -1,0 +1,24 @@
+{
+  "name": "catatan-sederhana",
+  "version": "1.0.0",
+  "description": "Projek sederhana bikin notes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kakionuia/2026-code-journey.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kakionuia/2026-code-journey/issues"
+  },
+  "homepage": "https://github.com/kakionuia/2026-code-journey#readme",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.2.2",
+    "tailwindcss": "^4.2.2"
+  }
+}

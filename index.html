@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Murni vanilla CSS dan tailwind</title>
+    <link href="src/output.css" rel="stylesheet">
+</head>
+<style>
+textarea {
+    resize: none;
+    overflow: hidden;
+    width: 100%;
+}
+
+.modal {
+    width: 50%;
+    display: block; 
+    position: fixed;
+    top: 40%;
+    left: 25%;
+    background-color: #fbecec;
+    padding: 1em;
+    font-size: 1rem;
+    box-shadow: 0 3rem 5rem rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    text-align: center;
+    z-index: 10;
+}
+</style>
+
+<body>
+    <div class="flex flex-col items-center gap-y-2 p-2 bg-red-800 text-white p-3">
+        <h1 class="font-bold text-4xl">Notetaker Alone</h1>
+            <p class="tracking-wide leading-2">Don't be ashamed if you learn for the first time, progress over attention/validation.</p>
+        <p class="tracking-tight text-white opacity-75">You can do it. I TRUST U</p>
+    </div>
+
+    <div class="flex justify-center gap-x-2 mt-4">
+        <button class="p-2 m-2 shadow-mauve-800 shadow-md rounded-full" id="addNote">+</button>
+            <input class="border-2 p-2 border-red-700 shadow-md shadow-mauve-800 bg-transparent focus:outline-none rounded-l-full" type="text" name="" id="" placeholder="cari notes kamu">
+        <button class="p-2 shadow-mauve-800 shadow-md rounded-r-full bg-red-700 text-white">Cari</button>
+    </div>
+
+    <div class="modal" id="containerAddNote">
+        <div class="flex justify-start">
+            <button class="text-center m-2 justify-center h-6 w-6 rounded-full bg-red-900 text-white" id="tutupModal">x</button>
+        </div>
+        <div class="flex-col items-center mx-auto">
+            <textarea id="isiText" placeholder="Masukkan catatan anda" class="focus:outline-none rounded-lg placeholder-neutral-600 p-2"></textarea>
+            <button id="saveButton" class="border-2 border-red-900 p-2 rounded-full bg-red-900 text-white">save</button>    
+        </div>    
+    </div>
+
+    <div id="listNote" class="m-10 flex flex-wrap items-center gap-5"></div>
+</body>
+
+<script>
+
+    const isiText = document.getElementById("isiText");
+    const saveButton = document.getElementById("saveButton");
+    const listNote = document.getElementById("listNote");
+    const initialKey = "isi-catatan";
+    const addNote = document.getElementById("addNote");
+    const isoDate = new Date().toISOString().split('T')[0];
+    let indexYangDiedit = null;
+    const modal = document.getElementById('containerAddNote');
+    const tutupModal = document.getElementById('tutupModal');
+
+    modal.style.display = 'none';
+
+    function tampilkanCatatan(){        
+        listNote.innerHTML = ''; //ini harus ditulis karena kalo ga dia bakalan overwrite yang mana dia bakal tumpang tindih manggil array berulang kali
+        const tampilkanText = JSON.parse(localStorage.getItem(initialKey)) || [];
+
+        tampilkanText.forEach((item, index) => {
+            const newDiv = document.createElement('div');
+            newDiv.innerHTML = `
+            <div class="bg-amber-400 p-2 w-50 rounded-lg">
+              <p>${item.deskripsi}</p>
+              <p>${item.tanggal}</p>
+              <div class="flex gap-x-2">
+                    <button class="editButton bg-green-700 text-white p-2 rounded-lg">Edit</button>
+                    <button class="hapusButton bg-red-900 text-white p-2 rounded-lg">Hapus</button>
+              </div>
+            </div>
+            `
+            newDiv.querySelector('.hapusButton').addEventListener('click', () => {
+                tampilkanText.splice(index, 1);
+                localStorage.setItem(initialKey, JSON.stringify(tampilkanText));
+                tampilkanCatatan();
+            });
+
+            newDiv.querySelector('.editButton').addEventListener('click', () => {
+                isiText.value = item.deskripsi;
+                indexYangDiedit = index;
+                modal.style.display = 'block'
+                isiText.style.overflowY = 'scroll'
+            })
+
+            listNote.appendChild(newDiv);
+        })
+    }
+
+    saveButton.addEventListener("click", () => {
+        event.preventDefault();
+
+        if (!isiText) return ;
+
+        const dataNote = {
+            deskripsi: isiText.value,
+            tanggal: isoDate
+        }
+
+        const catatanLama = JSON.parse(localStorage.getItem(initialKey)) || [ ];
+
+        if(indexYangDiedit !== null){
+                catatanLama[indexYangDiedit].deskripsi = isiText.value;
+                indexYangDiedit = null;
+        } else {
+                catatanLama.push(dataNote)
+        }
+        
+        localStorage.setItem(initialKey, JSON.stringify(catatanLama));
+        tampilkanCatatan();
+
+        isiText.value = ''
+
+    });
+
+    isiText.addEventListener('input', function(){
+        isiText.style.height = 'auto'
+        isiText.style.height = isiText.scrollHeight + 'px'
+        isiText.style.overflowY = 'scroll'
+    });
+
+    tampilkanCatatan();
+
+    addNote.addEventListener('click', function(){
+        modal.style.display = 'block'
+    })
+
+    tutupModal.addEventListener('click', function(){
+        modal.style.display = 'none'
+        isiText.value = ''
+    })
+
+</script>
+
+</html>
