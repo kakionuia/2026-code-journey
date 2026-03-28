@@ -11,6 +11,7 @@ textarea {
     resize: none;
     overflow: hidden;
     width: 100%;
+    height: 30%;
 }
 
 .modal {
@@ -29,9 +30,9 @@ textarea {
 }
 </style>
 
-<body>
+<body class="bg-neutral-200">
     <div class="flex flex-col items-center gap-y-2 p-2 bg-red-800 text-white p-3">
-        <h1 class="font-bold text-4xl">Notetaker Alone</h1>
+        <h1 class="font-bold text-4xl">El-Unique Notetaker</h1>
             <p class="tracking-wide leading-2">Don't be ashamed if you learn for the first time, progress over attention/validation.</p>
         <p class="tracking-tight text-white opacity-75">You can do it. I TRUST U</p>
     </div>
@@ -46,17 +47,20 @@ textarea {
         <div class="flex justify-start">
             <button class="text-center m-2 justify-center h-6 w-6 rounded-full bg-red-900 text-white" id="tutupModal">x</button>
         </div>
-        <div class="flex-col items-center mx-auto">
+        <div class="flex-col items-center gap-y-2">
+            <input type="text" id="judulText" placeholder="Masukkan judul anda" class="focus:outline-none placeholder-neutral-600 border-b-2 border-neutral-300 p-2 w-full" maxlength="50"/>
             <textarea id="isiText" placeholder="Masukkan catatan anda" class="focus:outline-none rounded-lg placeholder-neutral-600 p-2"></textarea>
             <button id="saveButton" class="border-2 border-red-900 p-2 rounded-full bg-red-900 text-white">save</button>    
         </div>    
     </div>
 
-    <div id="listNote" class="m-10 flex flex-wrap items-center gap-5"></div>
+    <div class="flex justify-center">
+        <div id="listNote" class="m-10 grid grid-cols-4 gap-5 justify-center"></div>
+    </div>
 </body>
 
 <script>
-
+    const judulText = document.getElementById("judulText");
     const isiText = document.getElementById("isiText");
     const saveButton = document.getElementById("saveButton");
     const listNote = document.getElementById("listNote");
@@ -76,12 +80,15 @@ textarea {
         tampilkanText.forEach((item, index) => {
             const newDiv = document.createElement('div');
             newDiv.innerHTML = `
-            <div class="bg-amber-400 p-2 w-50 rounded-lg">
+            <div class="col-span-2 shadow-red-400 shadow-sm p-2 w-72 rounded-lg">
+              <h1 class="text-2xl font-bold wrap-break-word">${item.judul}</h1>
               <p>${item.deskripsi}</p>
               <p>${item.tanggal}</p>
+              <div id="outputArea-${index}" class="mt-2 border-t pt-2"></div>
               <div class="flex gap-x-2">
                     <button class="editButton bg-green-700 text-white p-2 rounded-lg">Edit</button>
                     <button class="hapusButton bg-red-900 text-white p-2 rounded-lg">Hapus</button>
+                    <button class="runButton shadow-lg p-2 rounded-lg">Run</button>
               </div>
             </div>
             `
@@ -94,8 +101,27 @@ textarea {
             newDiv.querySelector('.editButton').addEventListener('click', () => {
                 isiText.value = item.deskripsi;
                 indexYangDiedit = index;
-                modal.style.display = 'block'
-                isiText.style.overflowY = 'scroll'
+                judulText.value = item.judul;
+                modal.style.display = 'block';
+                isiText.style.overflowY = 'scroll';
+            });
+
+            newDiv.querySelector('.runButton').addEventListener('click', () => {
+                const outputArea = newDiv.querySelector(`#outputArea-${index}`);
+                outputArea.innerHTML = ''; // reset dulu tiap klik Run
+
+                // Override document.body.appendChild supaya masuk ke card
+                const originalAppendChild = document.body.appendChild.bind(document.body);
+                document.body.appendChild = (el) => outputArea.appendChild(el);
+
+                try {
+                    eval(item.deskripsi);
+                } catch(e) {
+                    alert("Error: " + e.message);
+                }
+
+                // Kembalikan appendChild ke normal
+                document.body.appendChild = originalAppendChild;
             })
 
             listNote.appendChild(newDiv);
@@ -108,6 +134,7 @@ textarea {
         if (!isiText) return ;
 
         const dataNote = {
+            judul: judulText.value,
             deskripsi: isiText.value,
             tanggal: isoDate
         }
@@ -115,6 +142,7 @@ textarea {
         const catatanLama = JSON.parse(localStorage.getItem(initialKey)) || [ ];
 
         if(indexYangDiedit !== null){
+                catatanLama[indexYangDiedit].judul = judulText.value;
                 catatanLama[indexYangDiedit].deskripsi = isiText.value;
                 indexYangDiedit = null;
         } else {
@@ -124,13 +152,14 @@ textarea {
         localStorage.setItem(initialKey, JSON.stringify(catatanLama));
         tampilkanCatatan();
 
+        judulText.value = ''
         isiText.value = ''
 
     });
 
     isiText.addEventListener('input', function(){
-        isiText.style.height = 'auto'
-        isiText.style.height = isiText.scrollHeight + 'px'
+        // isiText.style.height = '20%'
+        // isiText.style.height = isiText.scrollHeight + 'px'
         isiText.style.overflowY = 'scroll'
     });
 
