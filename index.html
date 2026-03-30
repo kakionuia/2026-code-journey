@@ -14,6 +14,10 @@ textarea {
     height: 30%;
 }
 
+.output-text {
+    white-space: pre-wrap;
+}
+
 .modal {
     width: 50%;
     display: block; 
@@ -80,16 +84,20 @@ textarea {
         tampilkanText.forEach((item, index) => {
             const newDiv = document.createElement('div');
             newDiv.innerHTML = `
-            <div class="col-span-2 shadow-red-400 shadow-sm p-2 w-72 rounded-lg">
-              <h1 class="text-2xl font-bold wrap-break-word">${item.judul}</h1>
-              <p>${item.deskripsi}</p>
-              <p>${item.tanggal}</p>
+            <div class=" col-span-2 shadow-red-400 shadow-sm p-2 w-72 rounded-lg">
+
+                    <h1 class="text-2xl font-bold wrap-break-word">${item.judul}</h1>
+                    <p class="output-text">${item.deskripsi}</p>
+                    <p>${item.tanggal}</p>
+             
               <div id="outputArea-${index}" class="mt-2 border-t pt-2"></div>
+
               <div class="flex gap-x-2">
                     <button class="editButton bg-green-700 text-white p-2 rounded-lg">Edit</button>
                     <button class="hapusButton bg-red-900 text-white p-2 rounded-lg">Hapus</button>
                     <button class="runButton shadow-lg p-2 rounded-lg">Run</button>
               </div>
+
             </div>
             `
             newDiv.querySelector('.hapusButton').addEventListener('click', () => {
